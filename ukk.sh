@@ -6,6 +6,8 @@ echo "iface ens33 inet static" >> /etc/network/interfaces
 echo "	address $a1" >> /etc/network/interfaces
 read -p "Masukan Netmask: " a2
 echo "	netmask $a2" >> /etc/network/interfaces
+read -p "Masukan Gateway Mikrotik : " T1
+echo "	gateway $T1" >> /etc/network/interfaces
 read -p "masukan domain : " a22
 echo "nameserver $a1" > /etc/resolv.conf
 echo "search $a22" >> /etc/resolv.conf
@@ -26,7 +28,7 @@ cp /etc/bind/db.local /etc/bind/db.web
 cp /etc/bind/db.127 /etc/bind/db.ip
 sed -i "s/localhost/$a22/gi" /etc/bind/db.web
 sed -i "s/127.0.0.1/$a1/gi" /etc/bind/db.web
-sed -i "s/@       IN      AAAA    ::1//" /etc/bind/db.web
+sed -i "14d" /etc/bind/db.web
 echo "www	IN	A	$a1" >> /etc/bind/db.web
 echo "webmail	IN	A	$a1" >> /etc/bind/db.web
 
@@ -50,6 +52,7 @@ apt-get install proftpd -y
 ./ftp.sh
 read -p "Masukan nama user untuk FTP : " u1
 read -p "Masukan nama Direktory :" d1
+mkdir $d1
 useradd -d $d1 $u1
 passwd $u1
 
@@ -61,8 +64,12 @@ sed -i "s/var/usr/gi" /etc/apache2/sites-available/webmail.conf
 sed -i "s/www/share/gi" /etc/apache2/sites-available/webmail.conf
 sed -i "s/html/roundcube/gi" /etc/apache2/sites-available/webmail.conf
 a2ensite webmail.conf
-systemctl restart apache2
 read -p "Webmail membutuhkan user, masukan nama user:" w1
 adduser $w1
+systemctl restart apache2
+
+#Monitoring
+apt-get snmp snmpd -y
+sed -i "s/agentaddress  127.0.0.1,[::1]/#agentaddress  127.0.0.1,[::1]/gi"
 
 #systemctl list-unit-files --type=service
