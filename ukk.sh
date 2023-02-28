@@ -1,3 +1,4 @@
+do
 clear
 #ip
 read -p "Masukan ip : " a1
@@ -71,5 +72,5 @@ systemctl restart apache2
 #Monitoring
 apt-get snmp snmpd -y
 sed -i "s/agentaddress  127.0.0.1,[::1]/#agentaddress  127.0.0.1,[::1]/gi"
-
+done 
 #systemctl list-unit-files --type=service
